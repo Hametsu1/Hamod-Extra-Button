@@ -1,0 +1,25 @@
+[manifest]
+version = "1.0.0"
+priority = 2147483600
+
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+match_indent = false
+pattern = '''
+{n=G.UIT.R, config={align = 'cl'}, nodes={
+    use
+}},
+'''
+position = 'after'
+payload = '''
+{n=G.UIT.R, config={align = 'cl'}, nodes={
+    generate_extra_button(card) or nil
+}},
+'''
+times = 1
+
+
+
+
+

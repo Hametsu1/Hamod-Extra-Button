@@ -1,0 +1,13 @@
+{
+  "id": "Hamod_Extra_Button",
+  "name": "Hamod Extra Button",
+  "display_name": "Hamod Extra Button",
+  "author": ["Hametsu"],
+  "description": "Adds functionality for a custom button on Centers",
+  "prefix": "hamod_Extra_button",
+  "main_file": "Hamod_Extra_Button.lua",
+  "priority": 1,
+  "badge_colour": "56435c",
+  "version": "1.0",
+  "dependencies": ["Steamodded (>=1.0.0~BETA-0711a)"]
+}
