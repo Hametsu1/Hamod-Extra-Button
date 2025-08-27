@@ -17,7 +17,7 @@ function trigger_extra_buttons(card, is_highlighted)
                 end
             end
         else
-            for k,v in card.children do
+            for k,v in pairs(card.children) do
                 if string.sub(k, 1, #"extra_button") == "extra_button" then
                     v:remove()
                     v = nil
