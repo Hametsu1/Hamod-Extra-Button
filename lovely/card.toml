@@ -4,20 +4,19 @@ priority = 2147483600
 
 [[patches]]
 [patches.pattern]
-target = 'functions/UI_definitions.lua'
-match_indent = false
+target = 'card.lua'
+match_indent = true
 pattern = '''
-{n=G.UIT.R, config={align = 'cl'}, nodes={
-    use
-}},
+self.highlighted = is_higlighted
 '''
 position = 'after'
 payload = '''
-{n=G.UIT.R, config={align = 'cl'}, nodes={
-    generate_extra_button(card) or nil
-}},
+trigger_extra_buttons(self, is_higlighted)
 '''
 times = 1
+
+
+
 
 
 
