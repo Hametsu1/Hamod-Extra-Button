@@ -17,7 +17,7 @@ buttons = {
                 return true
             end,
             use = function(card) -- This function is called on button press 
-                HAMOD.debug(inspect(card.ability.extra))
+                
             end,
             is_visible = function(card) -- When a card is selected, this function is executed to determine if the button should be created
                 return card.area ~= G.shop_jokers
@@ -41,7 +41,7 @@ buttons = {
                 return true
             end,
             use = function(card) -- This function is called on button press 
-                HAMOD.debug(inspect(card.ability.extra))
+                
             end,
             is_visible = function(card) -- When a card is selected, this function is executed to determine if the button should be created.
                 return card.area ~= G.shop_jokers
