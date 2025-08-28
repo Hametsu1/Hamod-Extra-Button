@@ -7,9 +7,9 @@ priority = 2147483600
 target = 'card.lua'
 match_indent = true
 pattern = '''
-self.highlighted = is_higlighted
+if self.ability.consumeable or self.ability.set == 'Joker' then
 '''
-position = 'after'
+position = 'before'
 payload = '''
 trigger_extra_buttons(self, is_higlighted)
 '''
