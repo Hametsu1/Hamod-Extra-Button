@@ -46,24 +46,24 @@ Required\
 ``key`` Identifier of the group\
 
 Optional\
-``get_config = function(card)`` Function to return the alignment and offset of the group\
+``get_config = function(card)`` Function to return the alignment and offset of the group
 ```lua
 return {
     offset = {x = 0, y = 0}, -- Offset relative to the card object. Defauls to {x = 0.35, y = 0} for Jokers and {x = 0.5, y = 0} for Consumables
     align = '' -- Alignment relative to the card object. Defauls to 'cl' = center-left (tl,cl,bl,tr,cr,br,bmi)
 }
 ```
-``generate_UIBox = function(card, group_object)`` Function to return a custom UIBox, instead of using a template enriched with ``get_config``\
+``generate_UIBox = function(card, group_object)`` Function to return a custom UIBox, instead of using a template enriched with ``get_config``
 
 **Button parameters**\
 Required\
-``can_use = function(card)`` Function to determine if the button should currently be enabled or disabled (greyed out). The game calls this every frame the button is visible\
-``use = function(card)`` Function to execute when the button is pressed\
+``can_use = function(card)`` Function to determine if the button should currently be enabled or disabled (greyed out). The game calls this every frame the button is visible
+``use = function(card)`` Function to execute when the button is pressed
 
 Optional\
-``group`` Key of a registered group. Buttons in a group are positioned relative to each other. Defaults to ``'default'``\
-``is_visible = function(card)`` By default, every card will show this button in every context. Use this function, to limit this to certain types (Jokers, Consumables) or only in certain areas (G.jokers, G.shop_jokers)\
-``get_styling = function(card)`` Function to return styling information for the button\
+``group`` Key of a registered group. Buttons in a group are positioned relative to each other. Defaults to ``'default'``
+``is_visible = function(card)`` By default, every card will show this button in every context. Use this function, to limit this to certain types (Jokers, Consumables) or only in certain areas (G.jokers, G.shop_jokers)
+``get_styling = function(card)`` Function to return styling information for the button
 ```lua
 return {
     text = 'Use', -- Text that is displayed on the button
@@ -77,4 +77,4 @@ return {
     rounding = 0.08, -- Rounding on the buttons corners
 }
 ```
-``generate_ui = function(card)`` Function to return a custom button ui, instead of using a template enriched with ``get_styling``\
+``generate_ui = function(card)`` Function to return a custom button ui, instead of using a template enriched with ``get_styling``
