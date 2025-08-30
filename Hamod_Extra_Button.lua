@@ -6,8 +6,13 @@ HAMOD_BUTTONS.register_group = function(args)
     HAMOD_BUTTONS.groups[args.key] = args
 end
 
+HAMOD_BUTTONS.register_group({
+    key = 'default'
+})
+
 HAMOD_BUTTONS.register_button = function(args)
     if not args or (not args.use or type(args.use) ~= 'function') or (not args.can_use or type(args.can_use) ~= 'function') then return end
+    if not args.group then args.group = 'default' end
 
     table.insert(HAMOD_BUTTONS.buttons, args)
 end
@@ -27,17 +32,6 @@ function trigger_extra_buttons(card, is_highlighted)
                 if not btn.is_visible or type(btn.is_visible) ~= 'function' or btn.is_visible(card) then
                     local group_name = btn.group or 'default'
                     local group_object = groups[group_name] or {}
-
-                    --[[ if group_name == 'default' then
-                        local align = ((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or "bmi"
-                        card.children.use_button = UIBox{
-                        definition = integrate_button(G.UIDEF.use_and_sell_buttons(card), btn, align), 
-                        config = {align=align, offset = 
-                                ((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
-                                {x=0,y=0.65},
-                            parent =self}
-                    }
-                    end ]]
 
                     if not temp_groups[group_name] then
                         temp_groups[group_name] =
@@ -69,21 +63,39 @@ function trigger_extra_buttons(card, is_highlighted)
             end
 
             for k,v in pairs(temp_groups) do
-                local uibox = v.group.generate_UIBox and v.group.generate_UIBox(card, v) or UIBox{
+                local uibox = UIBox{
                     definition = v.ui,
                     config = v.styling
                 }
-                card.children['extrabtn_'..k] = uibox
+                card.children[v.group.overwrites or k] = uibox
+            end
+
+            -- Standalone button groups
+            for k,v in pairs(HAMOD_BUTTONS.groups) do
+                if not v.is_visible or (type(v.is_visible) == 'function' and v.is_visible(card)) then
+                    if v.generate_UIBox and type(v.generate_UIBox) == 'function' then
+                        card.children[v.overwrites or k] = v.generate_UIBox(card)
+                    end
+                end
             end
         else
             for k,v in pairs(card.children) do
-                if k:find("^extrabtn") then
-                    card.children[k]:remove()
-                    card.children[k] = nil
+                if HAMOD_BUTTONS.groups[k] then
+                    v:remove()
+                    v = nil
                 end
             end
         end
     end
+end
+
+function is_extra_button(key)
+    for k,v in pairs(HAMOD_BUTTONS.groups) do
+        if k == key or (v.overwrites and v.overwrites == key) then
+            return true
+        end
+    end
+    return false
 end
 
 SMODS.DrawStep {
@@ -91,8 +103,8 @@ SMODS.DrawStep {
     order = -31,
     func = function(self)
         for k,v in pairs(self.children) do
-            if k and type(k) == 'string' and starts_with(k, 'extrabtn') then
-                self.children[k]:draw()
+            if HAMOD_BUTTONS.groups[k] then
+                v:draw()
             end
         end
     end,
