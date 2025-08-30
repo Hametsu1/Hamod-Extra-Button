@@ -1,53 +1,83 @@
-HAMOD_BUTTONS = {groups = {}}
+HAMOD_BUTTONS = {groups = {}, buttons = {}}
+
+HAMOD_BUTTONS.register_group = function(args)
+    if not args or not args.key then return end
+
+    HAMOD_BUTTONS.groups[args.key] = args
+end
+
+HAMOD_BUTTONS.register_button = function(args)
+    if not args or (not args.use or type(args.use) ~= 'function') or (not args.can_use or type(args.can_use) ~= 'function') then return end
+
+    table.insert(HAMOD_BUTTONS.buttons, args)
+end
+
+function starts_with(str, prefix)
+    return str:sub(1, #prefix) == prefix
+end
+
 function trigger_extra_buttons(card, is_highlighted)
-    local btns = card.config.center.buttons
+    local btns = HAMOD_BUTTONS.buttons
+    local groups = HAMOD_BUTTONS.groups
     if btns then
         if card.highlighted then
-            HAMOD_BUTTONS.groups = {}
-            for _,group in ipairs(btns.groups) do
-                local group_name = group.name or 'extra'..#HAMOD_BUTTONS.groups
-                if not HAMOD_BUTTONS.groups[group_name] then
-                    HAMOD_BUTTONS.groups[group_name] = {
-                        ui = 
-                        {
-                            n=G.UIT.ROOT,
-                            config = {padding = 0, colour = G.C.CLEAR},
-                            nodes={
-                                {n=G.UIT.C, config={padding = 0.15, align = 'cl'}, nodes={}}
-                            }
-                        },
-                        styling = group.get_config and group.get_config(card) or {
-                            align = 'cl',--((card.area == G.jokers) or (card.area == G.consumeables)) and "cr" or "bmi",
-                            offset = {x = 0, y = 0},--((card.area == G.jokers) or (card.area == G.consumeables)) and {x = x_off - 0.4, y = 0} or {x = 0, y = 0.65},
-                            parent = card
-                        },
-                        group = group
-                    }
-                    if not HAMOD_BUTTONS.groups[group_name].styling.parent then
-                        HAMOD_BUTTONS.groups[group_name].styling.parent = card
-                    end
-                end
+            temp_groups = {}
 
-                for __,btn in ipairs(group.buttons) do
-                    if not btn.is_visible or type(btn.is_visible) ~= 'function' or btn.is_visible(card) then
-                        table.insert(
-                            HAMOD_BUTTONS.groups[group_name].ui.nodes[1].nodes,
-                            btn.generate_button and btn.generate_button(card) or generate_extra_button(card, btn)
-                        )
+            for _, btn in ipairs(btns) do
+                if not btn.is_visible or type(btn.is_visible) ~= 'function' or btn.is_visible(card) then
+                    local group_name = btn.group or 'default'
+                    local group_object = groups[group_name] or {}
+
+                    --[[ if group_name == 'default' then
+                        local align = ((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or "bmi"
+                        card.children.use_button = UIBox{
+                        definition = integrate_button(G.UIDEF.use_and_sell_buttons(card), btn, align), 
+                        config = {align=align, offset = 
+                                ((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
+                                {x=0,y=0.65},
+                            parent =self}
+                    }
+                    end ]]
+
+                    if not temp_groups[group_name] then
+                        temp_groups[group_name] =
+                        {
+                            ui = 
+                            {
+                                n=G.UIT.ROOT,
+                                config = {padding = 0, colour = G.C.CLEAR},
+                                nodes={
+                                    {n=G.UIT.C, config={padding = 0.15, align = 'cl'}, nodes={}}
+                                }
+                            },
+                            styling = group_object and group_object.get_config and group_object.get_config(card) or {
+                                align = 'cl',--((card.area == G.jokers) or (card.area == G.consumeables)) and "cr" or "bmi",
+                                offset = card.ability.consumeable and {x = 0.5, y = 0} or {x = 0.35, y = 0},--((card.area == G.jokers) or (card.area == G.consumeables)) and {x = x_off - 0.4, y = 0} or {x = 0, y = 0.65},
+                                parent = card
+                            },
+                            group = group_object
+                        }
+                        if not temp_groups[group_name].styling.parent then
+                            temp_groups[group_name].styling.parent = card
+                        end
                     end
+                    table.insert(
+                        temp_groups[group_name].ui.nodes[1].nodes,
+                        btn.generate_button and btn.generate_button(card) or generate_extra_button(card, btn)
+                    )
                 end
             end
 
-            for k,v in pairs(HAMOD_BUTTONS.groups) do
+            for k,v in pairs(temp_groups) do
                 local uibox = v.group.generate_UIBox and v.group.generate_UIBox(card, v) or UIBox{
                     definition = v.ui,
                     config = v.styling
                 }
-                card.children[k] = uibox
+                card.children['extrabtn_'..k] = uibox
             end
         else
-            for k,v in pairs(HAMOD_BUTTONS.groups) do
-                if card.children[k] then
+            for k,v in pairs(card.children) do
+                if k:find("^extrabtn") then
                     card.children[k]:remove()
                     card.children[k] = nil
                 end
@@ -60,13 +90,23 @@ SMODS.DrawStep {
     key = 'tags_buttons_extra',
     order = -31,
     func = function(self)
-        for k,v in pairs(HAMOD_BUTTONS.groups) do
-            if self.children[k] then
+        for k,v in pairs(self.children) do
+            if k and type(k) == 'string' and starts_with(k, 'extrabtn') then
                 self.children[k]:draw()
             end
         end
     end,
 } 
+
+function integrate_button(ui, btn, align)
+
+    if align == 'bmi' then
+
+    else
+
+    end
+
+end
 
 function generate_extra_button(card, btn)
 
@@ -78,9 +118,15 @@ function generate_extra_button(card, btn)
     if not btn or not btn.use or type(btn.use) ~= 'function' then return nil end
 
     local style = btn.get_styling and btn.get_styling(card) or {}
-    local button_name = style.name or 'Use'
+    local button_name = style.text or 'Use'
     local font_color = style.font_color or G.C.WHITE
     local button_color = style.button_color or G.C.GREEN
+    local text_align = style.text_align or 'cl'
+    local text_scale = style.text_scale or 0.55
+    local height = style.height or 1
+    local width = style.width or 1.25
+    local rounding = style.rounding or 0.08
+    local padding = style.padding or 0.1
 
     t = 
     {
@@ -91,12 +137,12 @@ function generate_extra_button(card, btn)
                     config=
                         {
                             ref_table = passingObj,
-                            align = "cr",
-                            maxw = 1.25,
-                            padding = 0.1,
-                            r=0.08,
-                            minw = 1.25,
-                            minh = (card.area and card.area.config.type == 'joker') and 0 or 1,
+                            align = text_align,
+                            maxw = width,
+                            padding = padding,
+                            r= rounding,
+                            minw = width,
+                            minh = height,
                             hover = true,
                             shadow = true,
                             colour = button_color,
@@ -112,8 +158,9 @@ function generate_extra_button(card, btn)
                                     {
                                         text = button_name,
                                         colour = font_color,
-                                        scale = 0.55,
-                                        shadow = true
+                                        scale = text_scale,
+                                        shadow = true,
+                                        align = text_align
                                     }
                             }
                         }
