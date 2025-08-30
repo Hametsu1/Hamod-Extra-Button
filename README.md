@@ -42,6 +42,7 @@ HAMOD_BUTTONS.register_button({
 ```
 
 **Group parameters**
+
 Required
 ``key`` Identifier of the group
 
@@ -56,6 +57,7 @@ return {
 ``generate_UIBox = function(card, group_object)`` Function to return a custom UIBox, instead of using a template enriched with ``get_config``
 
 **Button parameters**
+
 Required
 ``can_use = function(card)`` Function to determine if the button should currently be enabled or disabled (greyed out). The game calls this every frame the button is visible
 ``use = function(card)`` Function to execute when the button is pressed
