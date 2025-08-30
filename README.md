@@ -42,7 +42,6 @@ HAMOD_BUTTONS.register_button({
 ```
 
 **Group parameters**
-
 Required
 ``key`` Identifier of the group
 
