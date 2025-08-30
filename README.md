@@ -41,9 +41,9 @@ HAMOD_BUTTONS.register_button({
 })
 ```
 
-**Group parameters**
-Required
-``key`` Identifier of the group
+**Group parameters**\
+Required\
+``key`` Identifier of the group\
 
 Optional
 ``get_config = function(card)`` Function to return the alignment and offset of the group
