@@ -33,21 +33,24 @@ function trigger_extra_buttons(card, is_highlighted)
                     local group_name = btn.group or 'default'
                     local group_object = groups[group_name] or {}
 
+                    -- Standalone groups cannot have seperate buttons attached
+                    if group_object.standalone then group_object = {} end
+
+
                     if not temp_groups[group_name] then
+                        local cfg = group_object and group_object.get_config and group_object.get_config(card) or {}
                         temp_groups[group_name] =
                         {
-                            ui = 
-                            {
-                                n=G.UIT.ROOT,
-                                config = {padding = 0, colour = G.C.CLEAR},
-                                nodes={
-                                    {n=G.UIT.C, config={padding = 0.15, align = 'cl'}, nodes={}}
+                            buttons = {},
+                            styling =  {
+                                align = cfg.align or 'cl',--((card.area == G.jokers) or (card.area == G.consumeables)) and "cr" or "bmi",
+                                offset = cfg.offset or (card.ability.consumeable and {x = 0.5, y = 0} or {x = 0.35, y = 0}),--((card.area == G.jokers) or (card.area == G.consumeables)) and {x = x_off - 0.4, y = 0} or {x = 0, y = 0.65},
+                                parent = cfg.parent or card,
+                                bond = cfg.bond or nil,
+                                major = cfg.major or nil,
+                                styling = cfg.styling or {
+                                    orientation = 'column'
                                 }
-                            },
-                            styling = group_object and group_object.get_config and group_object.get_config(card) or {
-                                align = 'cl',--((card.area == G.jokers) or (card.area == G.consumeables)) and "cr" or "bmi",
-                                offset = card.ability.consumeable and {x = 0.5, y = 0} or {x = 0.35, y = 0},--((card.area == G.jokers) or (card.area == G.consumeables)) and {x = x_off - 0.4, y = 0} or {x = 0, y = 0.65},
-                                parent = card
                             },
                             group = group_object
                         }
@@ -56,15 +59,18 @@ function trigger_extra_buttons(card, is_highlighted)
                         end
                     end
                     table.insert(
-                        temp_groups[group_name].ui.nodes[1].nodes,
-                        btn.generate_button and btn.generate_button(card) or generate_extra_button(card, btn)
+                        temp_groups[group_name].buttons,
+                        {
+                            ui = btn.generate_button and btn.generate_button(card) or generate_extra_button(card, btn),
+                            button = btn
+                        }
                     )
                 end
             end
 
             for k,v in pairs(temp_groups) do
                 local uibox = UIBox{
-                    definition = v.ui,
+                    definition = v.generate_container and type(v.generate_container) == 'function' and v.generate_container(card, v.buttons) or generate_base_container(card, v.buttons, v.styling.styling),
                     config = v.styling
                 }
                 card.children[v.group.overwrites or k] = uibox
@@ -72,9 +78,11 @@ function trigger_extra_buttons(card, is_highlighted)
 
             -- Standalone button groups
             for k,v in pairs(HAMOD_BUTTONS.groups) do
-                if not v.is_visible or (type(v.is_visible) == 'function' and v.is_visible(card)) then
-                    if v.generate_UIBox and type(v.generate_UIBox) == 'function' then
-                        card.children[v.overwrites or k] = v.generate_UIBox(card)
+                if v.standalone then
+                    if not v.is_visible or (type(v.is_visible) == 'function' and v.is_visible(card)) then
+                        if v.generate_UIBox and type(v.generate_UIBox) == 'function' then
+                            card.children[v.overwrites or k] = v.generate_UIBox(card)
+                        end
                     end
                 end
             end
@@ -87,6 +95,36 @@ function trigger_extra_buttons(card, is_highlighted)
             end
         end
     end
+end
+
+function generate_base_container(card, buttons, styling)
+    
+
+    local t = {n=G.UIT.ROOT,
+        config = {padding = 0, colour = G.C.CLEAR},
+        nodes={
+            
+        }
+    }
+
+    if styling and styling.orientation and styling.orientation == 'row' then
+        table.insert(t.nodes, {n=G.UIT.R, config={padding = 0.15, align = 'cl'}, nodes={}})
+    else
+        table.insert(t.nodes, {n=G.UIT.C, config={padding = 0.15, align = 'cl'}, nodes={}})
+    end
+
+    table.sort(buttons, function(a, b)
+        return (a.button.priority or 0) < (b.button.priority or 0)
+    end)
+
+    for _,btn in ipairs(buttons) do
+        table.insert(
+            t.nodes[1].nodes,
+            btn.ui
+        )
+    end
+
+    return t
 end
 
 function is_extra_button(key)
