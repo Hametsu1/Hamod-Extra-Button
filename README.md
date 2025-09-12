@@ -1,4 +1,4 @@
-## Hanod Extra Buttons
+## Hamod Extra Buttons
 This mod allows you to add custom buttons to Jokers, Consumables, or any other card.
 
 
