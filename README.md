@@ -76,13 +76,20 @@ generate_UIBox = function(card)
     end
 ```
 
+``get_config = function(card)`` Use this to define custom styling information which is then applied to a UIBox template. Gets ignored when ``generate_UIBox`` is defined
+
 ```lua
 return {
-    offset = {x = 0, y = 0}, -- Offset relative to the card object. Defauls to {x = 0.35, y = 0} for Jokers and {x = 0.5, y = 0} for Consumables
-    align = '' -- Alignment relative to the card object. Defauls to 'cl' = center-left (tl,cl,bl,tr,cr,br,bmi)
+    align = 'cl',
+    offset = card.ability.consumeable and {x = 0.5, y = 0} or {x = 0.35, y = 0}
+    parent = card,
+    bond = nil,
+    major = nil,
+    styling = {
+       orientation = 'column'
+    }
 }
 ```
-``generate_UIBox = function(card, group_object)`` Function to return a custom UIBox, instead of using a template enriched with ``get_config``
 
 **Button parameters**\
 Required\
