@@ -56,7 +56,7 @@ Optional\
 
 ``overwrites = ''`` Button group which should be overwritten. Useful to replace/extend vanilla behavior ('use_button' for the use and sell buttons on cards)
 
-``standalone = false`` Set this to true, if the button group defines it's own buttons via ``generate_UIBox``. This makes it impossible to add any buttons to the group
+``standalone = false`` Set this to true, if the button group defines it's own UIBox via ``generate_UIBox``. This makes it impossible to add any buttons to the group
 
 ``is_visible = function(card)`` Use this to control if the button group as a whole should be visible. Must be set if ``standalone == true``, otherwise the group is always visible
 
