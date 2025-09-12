@@ -54,6 +54,28 @@ Required\
 Optional\
 ``get_config = function(card)`` Function to return the alignment and offset of the group
 
+``overwrites = ''`` Button group which should be overwritten. Useful to replace/extend vanilla behavior ('use_button' for the use and sell buttons on cards)
+
+``standalone = false`` Set this to true, if the button group defines it's own buttons via ``generate_UIBox``. This makes it impossible to add any buttons to the group
+
+``is_visible = function(card)`` Use this to control if the button group as a whole should be visible. Must be set if ``standalone == true``, otherwise the group is always visible
+
+``generate_UIBox = function(card)`` Use this to define a fully custom UIBox. Must be set if ``standalone == true``, otherwise the group won't show
+
+```lua
+generate_UIBox = function(card)
+        local x_off = (card.ability.consumeable and -0.1 or 0)
+        return UIBox{
+            definition = custom_ui(),
+            config = {
+                align = "bmi",
+                offset = {x=0,y=0.35},
+                parent = card
+            }
+        }
+    end
+```
+
 ```lua
 return {
     offset = {x = 0, y = 0}, -- Offset relative to the card object. Defauls to {x = 0.35, y = 0} for Jokers and {x = 0.5, y = 0} for Consumables
