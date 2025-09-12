@@ -1,4 +1,8 @@
+## Hanod Extra Buttons
+This mod allows you to add custom buttons to Jokers, Consumables, or any other card.
 
+
+## Examples
 ```lua
 HAMOD_BUTTONS.register_group({
     key = 'group1',
@@ -40,6 +44,8 @@ HAMOD_BUTTONS.register_button({
     end
 })
 ```
+
+## API Documentation
 
 **Group parameters**\
 Required\
